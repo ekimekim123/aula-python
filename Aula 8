@@ -1,0 +1,182 @@
+num = int(input('Selecione um numero: '))
+print('numero escolhido: ')
+if num >= 1:
+  print('número positivo')
+elif num == 0:
+    print('número neutro')
+else:
+    print('número negativo')
+
+
+
+idade = int(input('Digite sua idade: '))
+if idade >= 16:
+  print('pode votar')
+else:
+  print('nao pode votar')
+
+
+
+
+
+import random
+lista = [1,2,3,4,5,6,7,8,9,10]
+n1 = random.choice(lista)
+print(n1)
+if n1 == 2 or n1 == 4 or n1 == 6 or n1 == 8 or n1 == 10:
+  print('seu numero é par')
+else:
+  print('seu numero é impar')
+
+
+
+
+lado1 = int(input('digite o lado 1: '))
+lado2 = int(input('digite o lado 2: '))
+lado3 = int(input('digite o lado 3: '))
+if lado1 == lado2 == lado3:
+  print('equilatero')
+elif lado1 == lado2 or lado1 == lado3 or lado2 == lado3:
+  print('isosceles')
+else:
+  print('escaleno')
+
+
+
+
+
+mult = int(input('digite um numero: '))
+if (mult % 5) == 0 and (mult % 7) == 0:
+  print('seu numero e multiplo de', 5, 'e', 7)
+else:
+  print('não é multiplo por 5 e 7')
+
+
+
+
+
+n2 = int(input('digite um número maior que 10: '))
+if n2 > 10 and n2 > 0:
+  print('seu numero é maior que 10 e positivo')
+elif n2 < 10 and n2 > 0:
+  print('seu numero é menor que 10 e positivo')
+else:
+  print('seu numero é menor que 10 e negativo')
+
+
+
+
+
+
+
+
+
+n3 = int(input('digite um numero: '))
+if (n3 / 5) == 1 or (n3 / 3) == 1:
+  print('seu numero é divisivel por 3 ou 5')
+else:
+  print('não é divisivel por 3 ou 5')
+
+
+
+
+
+
+
+
+
+
+
+
+print('*** Sistema de Reservas de Hotel ***')
+
+
+print('\n--- Cadastro de Clientes ---')
+
+cliente1_nome = input('Digite o nome do Cliente 1: ')
+cliente1_idade = int(input(f'Digite a idade de {cliente1_nome}: '))
+
+cliente2_nome = input('Digite o nome do Cliente 2: ')
+cliente2_idade = int(input(f'Digite a idade de {cliente2_nome}: '))
+
+cliente3_nome = input('Digite o nome do Cliente 3: ')
+cliente3_idade = int(input(f'Digite a idade de {cliente3_nome}: '))
+
+print('\nClientes Cadastrados:')
+print(f'- {cliente1_nome} ({cliente1_idade} anos)')
+print(f'- {cliente2_nome} ({cliente2_idade} anos)')
+print(f'- {cliente3_nome} ({cliente3_idade} anos)')
+
+
+print('\n--- Reservas de Quartos e Preços ---')
+print('Tipos de Quartos Disponíveis:')
+print('  Simples: R$ 100,00 por dia')
+print('  Duplo:   R$ 150,00 por dia')
+print('  Luxo:    R$ 250,00 por dia')
+
+
+preco_simples = 100.00
+preco_duplo = 150.00
+preco_luxo = 250.00
+
+
+print(f'\n--- Reserva para {cliente1_nome} ---')
+escolha_quarto_cliente1 = input(f'Qual tipo de quarto {cliente1_nome} deseja (Simples, Duplo, Luxo)? ').capitalize()
+dias_cliente1 = int(input(f'Quantos dias {cliente1_nome} ficará hospedado(a)? '))
+
+valor_diaria_cliente1 = 0.0
+if escolha_quarto_cliente1 == 'Simples':
+    valor_diaria_cliente1 = preco_simples
+elif escolha_quarto_cliente1 == 'Duplo':
+    valor_diaria_cliente1 = preco_duplo
+elif escolha_quarto_cliente1 == 'Luxo':
+    valor_diaria_cliente1 = preco_luxo
+else:
+    print(f'Opção de quarto inválida para {cliente1_nome}. Será considerado Simples por padrão.')
+    valor_diaria_cliente1 = preco_simples
+
+valor_total_cliente1 = valor_diaria_cliente1 * dias_cliente1
+
+
+print(f'\n--- Reserva para {cliente2_nome} ---')
+escolha_quarto_cliente2 = input(f'Qual tipo de quarto {cliente2_nome} deseja (Simples, Duplo, Luxo)? ').capitalize()
+dias_cliente2 = int(input(f'Quantos dias {cliente2_nome} ficará hospedado(a)? '))
+
+valor_diaria_cliente2 = 0.0
+if escolha_quarto_cliente2 == 'Simples':
+    valor_diaria_cliente2 = preco_simples
+elif escolha_quarto_cliente2 == 'Duplo':
+    valor_diaria_cliente2 = preco_duplo
+elif escolha_quarto_cliente2 == 'Luxo':
+    valor_diaria_cliente2 = preco_luxo
+else:
+    print(f'Opção de quarto inválida para {cliente2_nome}. Será considerado Simples por padrão.')
+    valor_diaria_cliente2 = preco_simples
+
+valor_total_cliente2 = valor_diaria_cliente2 * dias_cliente2
+
+
+print(f'\n--- Reserva para {cliente3_nome} ---')
+escolha_quarto_cliente3 = input(f'Qual tipo de quarto {cliente3_nome} deseja (Simples, Duplo, Luxo)? ').capitalize()
+dias_cliente3 = int(input(f'Quantos dias {cliente3_nome} ficará hospedado(a)? '))
+
+valor_diaria_cliente3 = 0.0
+if escolha_quarto_cliente3 == 'Simples':
+    valor_diaria_cliente3 = preco_simples
+elif escolha_quarto_cliente3 == 'Duplo':
+    valor_diaria_cliente3 = preco_duplo
+elif escolha_quarto_cliente3 == 'Luxo':
+    valor_diaria_cliente3 = preco_luxo
+else:
+    print(f'Opção de quarto inválida para {cliente3_nome}. Será considerado Simples por padrão.')
+    valor_diaria_cliente3 = preco_simples
+
+valor_total_cliente3 = valor_diaria_cliente3 * dias_cliente3
+
+
+print('\n--- Resumo e Pagamento ---')
+print(f'{cliente1_nome}, seu quarto é {escolha_quarto_cliente1} por {dias_cliente1} dias. O total a pagar é: R$ {valor_total_cliente1:.2f}')
+print(f'{cliente2_nome}, seu quarto é {escolha_quarto_cliente2} por {dias_cliente2} dias. O total a pagar é: R$ {valor_total_cliente2:.2f}')
+print(f'{cliente3_nome}, seu quarto é {escolha_quarto_cliente3} por {dias_cliente3} dias. O total a pagar é: R$ {valor_total_cliente3:.2f}')
+
+print('\nObrigado por usar o Sistema de Reservas do Hotel!')
