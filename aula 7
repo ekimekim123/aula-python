@@ -1,0 +1,23 @@
+##Exercicio 0
+for numero_par in range(2, 21, 2):
+    print(numero_par)
+##
+##Exercicio 1
+numeros = [1,2,3,4,5,6,7,8,9,10]
+print(numeros)
+##
+##Exercicio 2
+print(numeros[2])
+##
+##Exercicio 3
+numeros.append(9)
+print(numeros)
+##
+##Exercicio 4
+numeros.remove(5)
+print(numeros)
+##
+##Exercicio 5
+carros = ['onyx','impala','prisma']
+carros.extend(numeros)
+print(carros)
