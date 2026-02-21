@@ -1,0 +1,86 @@
+x = []
+contador = 1
+while contador <= 10:
+    nome = input(f'Digite o {contador}° nome: ')
+    x.append(nome)
+    contador += 1
+print('\nLista preenchida com os seguintes nomes')
+print(x)
+
+o = 0
+while o < 1000:
+    o += 1
+    print(o)
+
+
+
+senha_correta = 'profmat'
+tentativas = 3
+logado = False
+
+while tentativas > 0:
+    senha_digitada = input(f'Digite sua senha: ')
+    if senha_digitada == senha_correta:
+        print('Acesso concedido')
+        logado = True
+        break
+    else:
+        tentativas -= 1
+        if tentativas > 0:
+            print(f'senha incorreta, tente novamente.')
+        else:
+            print(f'acesso bloqueado! Você esgotou as tentativas.')
+if logado:
+    print('Calculo de média')
+    notas = []
+    for i in range(1, 4):
+        valor_nota = float(input(f'Digite a nota {i}:'))
+        notas.append(valor_nota)
+    media = sum(notas)/len(notas)
+    print('RESULTADO FINAL')
+    print(f'Notas inseridas: {notas}')
+    print(f'A média final é {media:.2f}')
+    if media >= 7:
+        print('Aprovado!')
+    else:
+        print('Reprovado!')
+input('Digite enter para sair')
+def soma():
+    n1 = float(input('Digite o valor: '))
+    n2 = float(input('Digite o valor: '))
+    print(n1+n2)
+def sub():
+    n1 = float(input('Digite o valor: '))
+    n2 = float(input('Digite o valor: '))
+    print(n1-n2)
+def mult():
+    n1 = float(input('Digite o valor: '))
+    n2 = float(input('Digite o valor: '))
+    print(n1*n2)
+def div():
+    n1 = float(input('Digite o valor: '))
+    n2 = float(input('Digite o valor: '))
+    print(n1/n2)
+def calculadora():
+    operação = input(''' escolha a operação
+    +
+    -
+    /
+    *    
+        ''')
+    if operação == '+':
+        soma()
+    elif operação == '-':
+        sub()
+    elif operação == '*':
+        mult()
+    elif operação == '/':
+        div()
+    else:
+        print('Digite algo valido')
+
+def loop():
+    while True:
+        calculadora()
+
+loop()
