@@ -1,0 +1,47 @@
+def calcular():
+    try:
+        
+        l = [1,2,3]
+        n1  =  10
+        n2  =  3
+        x  = 100
+        print(n1  / n2 + x)
+        print(l[n2])
+        
+    except ValueError as erro:
+        print(erro)
+    except ZeroDivisionError as erro:
+        print(erro)
+    except TypeError as erro:
+        print(erro)
+    except NameError as erro:
+        print(erro)
+    except IndexError as erro :
+        print(erro)
+    else:
+        print('Não existe erro...')
+        
+    finally:
+        print('Fim de carregamento...')
+
+# ZerroDivisionError
+calcular()
+
+try:
+    int(input('insira um numero inteiro: '))
+except ValueError:
+    print('Isto não é um numero inteiro')
+
+
+try:
+    z = int(input('Digite um numero: '))
+    x = int(input('Digite um numero: '))
+    print(z/x)
+except ZeroDivisionError:
+    print('não é possivel dividir por zero')
+
+s = ['Indice',1,2,3,4,5]
+try:
+    print(s[6])
+except IndexError:
+    print('esse Index não está disponivel nesta lista')
