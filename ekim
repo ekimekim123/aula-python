@@ -1,0 +1,58 @@
+import pygame
+import sys
+import random
+import math
+
+# 1. Inicialização
+pygame.init()
+largura, altura = 800, 600
+screen = pygame.display.set_mode((largura, altura))
+pygame.display.set_caption("EKIM Chroma Game")
+clock = pygame.time.Clock()
+
+# 2. Configuração de Texto e Cores
+# Criamos 30 cores aleatórias para o fundo
+cores_fundo = [(random.randint(20, 100), random.randint(20, 100), random.randint(20, 100)) for _ in range(30)]
+indice_fundo = 0
+
+# Fonte do sistema (podes trocar 'Arial' por outra que tenhas)
+fonte = pygame.font.SysFont("Arial", 120, bold=True)
+
+# Variável para controlar a animação do Chroma do texto
+tempo_chroma = 0
+
+# 3. Loop Principal
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+            
+        # Muda o fundo ao apertar ESPAÇO
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                indice_fundo = (indice_fundo + 1) % len(cores_fundo)
+
+    # 4. Lógica do Chroma (Cálculo das cores RGB do texto)
+    r = int(127 + 127 * math.sin(tempo_chroma))
+    g = int(127 + 127 * math.sin(tempo_chroma + 2))
+    b = int(127 + 127 * math.sin(tempo_chroma + 4))
+    cor_texto = (r, g, b)
+    tempo_chroma += 0.05 # Velocidade do efeito no nome
+
+    # 5. Desenho
+    # Preenche o fundo com a cor selecionada pelo Espaço
+    screen.fill(cores_fundo[indice_fundo])
+
+    # Renderiza o nome "EKIM" com a cor chroma atual
+    # O True ativa o anti-aliasing (deixa as bordas do texto lisinhas)
+    texto_surface = fonte.render("EKIM", True, cor_texto)
+    
+    # Centraliza o texto automaticamente
+    texto_rect = texto_surface.get_rect(center=(largura // 2, altura // 2))
+    
+    # Desenha o texto na tela
+    screen.blit(texto_surface, texto_rect)
+
+    pygame.display.flip()
+    clock.tick(60)
