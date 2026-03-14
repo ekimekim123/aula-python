@@ -1,0 +1,172 @@
+import pygame
+import random
+import sys
+
+def draw_text_outline(surf, text, font, color, outline_color, pos):
+    text_surf = font.render(text, True, color)
+    for off in [(-1,-1), (1,-1), (-1,1), (1,1)]:
+        surf.blit(font.render(text, True, outline_color), (pos[0] + off[0], pos[1] + off[1]))
+    surf.blit(text_surf, pos)
+
+pygame.init()
+LARGURA, ALTURA = 800, 400
+TAMANHO_FIXO = (45, 45)
+tela = pygame.display.set_mode([LARGURA, ALTURA])
+
+try:
+    m1 = pygame.transform.scale(pygame.image.load('assets/m1.png').convert_alpha(), TAMANHO_FIXO)
+    m2 = pygame.transform.scale(pygame.image.load('assets/m2.png').convert_alpha(), TAMANHO_FIXO)
+    m3 = pygame.transform.scale(pygame.image.load('assets/m3.png').convert_alpha(), TAMANHO_FIXO)
+    ob = pygame.transform.scale(pygame.image.load('assets/ob1.png').convert_alpha(), (35, 50))
+    chao_img = pygame.image.load('assets/g1.png').convert_alpha()
+except:
+    print("Assets não carregados!"); pygame.quit(); sys.exit()
+
+fonte = pygame.font.SysFont('monospace', 11, bold=True)
+clock = pygame.time.Clock()
+
+def resetar():
+    return {
+        'd_x': 100, 'd_y': 300, 'v_y': 0, 'jump': False,
+        'cx': 0, 'ox': 900, 'pts': 0.0, 'go': False, 'pausa': False,
+        'hue': 0, 'fly': False, 'god': False, 'quake': False, 
+        'g_flip': False, 'matrix': False, 'flash': False, 
+        'f_balls': [], 'clones': [], 'hist': [], 
+        'skin': None, 'wide': False, 't_stop': 0, 'laser': False,
+        'slow': False, 'mirror': False, 'up_down': False, 'party': False, 'rainbow': False
+    }
+
+st = resetar()
+
+while True:
+    st['hue'] = (st['hue'] + 5) % 360
+    c_chr = pygame.Color(0); c_chr.hsva = (st['hue'], 100, 100, 100)
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: pygame.quit(); sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE: st['pausa'] = not st['pausa']
+            if st['pausa']:
+                if event.key == pygame.K_r: st = resetar()
+                if event.key == pygame.K_q: pygame.quit(); sys.exit()
+                continue
+            
+            # --- TODAS AS FUNÇÕES REUNIDAS ---
+            if event.key == pygame.K_o: st['fly'] = not st['fly']
+            if event.key == pygame.K_g: st['god'] = not st['god']
+            if event.key == pygame.K_b: st['g_flip'] = not st['g_flip']; st['v_y'] = 0
+            if event.key == pygame.K_x: st['quake'] = not st['quake']
+            if event.key == pygame.K_n: st['matrix'] = not st['matrix']
+            if event.key == pygame.K_v: st['flash'] = not st['flash']
+            if event.key == pygame.K_q: st['slow'] = not st['slow']
+            if event.key == pygame.K_m: st['mirror'] = not st['mirror']
+            if event.key == pygame.K_u: st['up_down'] = not st['up_down']
+            if event.key == pygame.K_p: st['party'] = not st['party']
+            if event.key == pygame.K_y: st['rainbow'] = not st['rainbow']
+            if event.key == pygame.K_w: st['wide'] = not st['wide']
+            if event.key == pygame.K_l: st['laser'] = not st['laser']
+            if event.key == pygame.K_z: st['clones'].append(len(st['clones']) + 1) # Adiciona clone na fila
+            if event.key == pygame.K_f: st['f_balls'].append([st['d_x']+40, st['d_y']+20])
+            if event.key == pygame.K_1: st['skin'] = (255,100,100)
+            if event.key == pygame.K_2: st['skin'] = (100,100,255)
+            if event.key == pygame.K_3: st['skin'] = (255,215,0)
+            if event.key == pygame.K_0: st['skin'] = None
+            if event.key == pygame.K_SPACE and not st['jump'] and not st['go']:
+                st['v_y'] = 15 if st['g_flip'] else -18; st['jump'] = True
+            if event.key == pygame.K_r and st['go']: st = resetar()
+
+    if not st['go'] and not st['pausa']:
+        # Multiplicadores de Velocidade
+        v_m = (3 if st['flash'] else 1) * (0.4 if st['slow'] else 1)
+        v_atu = 12 * v_m
+        st['pts'] += 0.5 * v_m
+
+        # Histórico de movimento (Delay curto: 8 frames)
+        st['hist'].append((st['d_x'], st['d_y']))
+        if len(st['hist']) > 200: st['hist'].pop(0)
+
+        # Física Player
+        if st['fly']:
+            t = pygame.key.get_pressed()
+            if t[pygame.K_UP]: st['d_y'] -= 10
+            if t[pygame.K_DOWN]: st['d_y'] += 10
+            if t[pygame.K_LEFT]: st['d_x'] -= 10
+            if t[pygame.K_RIGHT]: st['d_x'] += 10
+        else:
+            st['v_y'] += (-1.2 if st['g_flip'] else 1.2)
+            st['d_y'] += st['v_y']
+            if not st['g_flip'] and st['d_y'] >= 300: st['d_y'] = 300; st['jump'] = False
+            if st['g_flip'] and st['d_y'] <= 50: st['d_y'] = 50; st['jump'] = False
+
+        st['cx'] = (st['cx'] - v_atu) % -800
+        st['ox'] -= v_atu
+        if st['ox'] < -50: st['ox'] = 850
+
+        # Colisões
+        obs_r = pygame.Rect(st['ox']+5, 305, 25, 40)
+        p_r = pygame.Rect(st['d_x']+5, st['d_y']+5, 35, 35)
+        
+        # Player morre?
+        if p_r.colliderect(obs_r) and not (st['god'] or st['fly']): st['go'] = True
+        
+        # Clones morrem? (Fila Indiana com delay de 8 frames)
+        for c_idx in st['clones'][:]:
+            delay = c_idx * 8 
+            h_idx = len(st['hist']) - delay
+            if h_idx > 0:
+                cx, cy = st['hist'][h_idx]
+                if pygame.Rect(cx+5, cy+5, 35, 35).colliderect(obs_r):
+                    st['clones'].remove(c_idx) # CLONE MORRE SOZINHO!
+
+    # --- RENDERIZAÇÃO ---
+    s = pygame.Surface((LARGURA, ALTURA))
+    s.fill((20,20,20) if not st['party'] else c_chr)
+    
+    if st['matrix']:
+        for _ in range(5): draw_text_outline(s, "01", fonte, (0,255,0), (0,0,0), (random.randint(0,800), random.randint(0,400)))
+    
+    s.blit(chao_img, (st['cx'], 345)); s.blit(chao_img, (st['cx']+800, 345))
+
+    # Desenhar Clones (Seguidores)
+    for c_idx in st['clones']:
+        idx = len(st['hist']) - (c_idx * 8)
+        if idx > 0:
+            c_pos = st['hist'][idx]
+            img_c = m1.copy()
+            img_c.set_alpha(150)
+            if st['g_flip']: img_c = pygame.transform.flip(img_c, False, True)
+            s.blit(img_c, c_pos)
+
+    # Desenhar Player
+    m_img = [m1, m2, m3][(pygame.time.get_ticks()//100)%3].copy()
+    if st['wide']: m_img = pygame.transform.scale(m_img, (80, 45))
+    if st['g_flip']: m_img = pygame.transform.flip(m_img, False, True)
+    if st['rainbow']: m_img.fill(c_chr, special_flags=pygame.BLEND_RGB_MULT)
+    elif st['skin']: m_img.fill(st['skin'], special_flags=pygame.BLEND_RGB_MULT)
+    s.blit(m_img, (st['d_x'], st['d_y']))
+    s.blit(ob, (st['ox'], 305))
+
+    if st['laser']: pygame.draw.line(s, (255,0,0), (st['d_x']+40, st['d_y']+20), (800, st['d_y']+20), 5)
+    for fb in st['f_balls'][:]:
+        fb[0] += 20
+        pygame.draw.circle(s, (255,60,0), (int(fb[0]), int(fb[1])), 7)
+        if fb[0] > 800: st['f_balls'].remove(fb)
+
+    # Transformações de tela finais
+    f_s = s
+    if st['mirror']: f_s = pygame.transform.flip(f_s, True, False)
+    if st['up_down']: f_s = pygame.transform.flip(f_s, False, True)
+    
+    # UI
+    info = [f"FLY[O] GOD[G] GRAV[B] QUAKE[X] MATRIX[N]", f"FLASH[V] SLOW[Q] MIRR[M] UPSIDE[U] PARTY[P]", f"RAINBOW[Y] WIDE[W] LASER[L] CLONE[Z] FIRE[F]"]
+    for i, t in enumerate(info): draw_text_outline(f_s, t, fonte, (255,255,255), (0,0,0), (10, 10 + i*16))
+    
+    off = (random.randint(-8,8), random.randint(-8,8)) if st['quake'] else (0,0)
+    tela.blit(f_s, off)
+    
+    if st['go']: draw_text_outline(tela, "GAME OVER - [R] RESTART", fonte, (255,0,0), (255,255,255), (320, 200))
+    if st['pausa']: draw_text_outline(tela, "PAUSADO - [R] RESTART [Q] QUIT", fonte, (255,255,255), (0,0,0), (280, 200))
+    
+    draw_text_outline(tela, f"SCORE: {int(st['pts'])}", fonte, (255,255,0), (0,0,0), (680, 10))
+    pygame.display.update()
+    clock.tick(60)
