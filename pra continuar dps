@@ -1,0 +1,173 @@
+import pygame
+import random
+import sys
+import math
+
+# --- INICIALIZAÇÃO ---
+pygame.init()
+LARGURA, ALTURA = 1000, 600
+TAMANHO_FIXO = (50, 50)
+info = pygame.display.Info()
+tela = pygame.display.set_mode([LARGURA, ALTURA], pygame.RESIZABLE)
+pygame.display.set_caption("EKIM - GLITCH DIMENSION")
+
+# --- ASSETS ---
+def carregar_img(caminho, tamanho, alpha=True):
+    try:
+        img = pygame.image.load(caminho)
+        img = img.convert_alpha() if alpha else img.convert()
+        return pygame.transform.scale(img, tamanho)
+    except:
+        surf = pygame.Surface(tamanho, pygame.SRCALPHA)
+        pygame.draw.rect(surf, (200, 200, 200), (0, 0, tamanho[0], tamanho[1]))
+        return surf
+
+m1 = carregar_img('assets/m1.png', TAMANHO_FIXO)
+m2 = carregar_img('assets/m2.png', TAMANHO_FIXO)
+m3 = carregar_img('assets/m3.png', TAMANHO_FIXO)
+ob = carregar_img('assets/ob1.png', (45, 65))
+chao_img = carregar_img('assets/g1.png', (200, 100)) # Textura do chão
+tiro_img = carregar_img('assets/fogo.png', (30, 20)) # Tente colocar uma imagem de fogo aqui!
+
+def draw_text(surf, text, pos, color=(255, 255, 255), center=False):
+    fonte = pygame.font.SysFont('monospace', 14, bold=True)
+    ts = fonte.render(str(text), True, color)
+    rect = ts.get_rect(center=pos if center else pos)
+    surf.blit(ts, rect)
+
+def criar_botao(surf, texto, x, y, w, h, ativo=None, cor_custom=None):
+    mouse = pygame.mouse.get_pos()
+    clique = pygame.mouse.get_pressed()
+    cor = cor_custom if cor_custom else (45, 45, 45)
+    if ativo is True: cor = (0, 200, 80)
+    elif ativo is False: cor = (200, 50, 50)
+    
+    rect = pygame.Rect(x, y, w, h)
+    if rect.collidepoint(mouse):
+        cor = tuple(min(255, c + 40) for c in cor)
+        if clique[0]: pygame.time.wait(150); return True
+    
+    pygame.draw.rect(surf, cor, rect, border_radius=8)
+    pygame.draw.rect(surf, (255, 255, 255), rect, 1, border_radius=8)
+    draw_text(surf, texto, rect.center, center=True)
+    return False
+
+def resetar():
+    return {
+        'd_x': 150, 'd_y': 440, 'v_y': 0, 'jump': False,
+        'cx': 0, 'ox': 1100, 'pts': 0.0, 'go': False, 'pausa': False, 'fs': False,
+        'hue': 0, 'f_balls': [], 'hist': [], 'aba': 'FUNÇÕES',
+        # Status das funções (Iniciam todas False)
+        'fly': False, 'god': False, 'g_flip': False, 'quake': False, 'matrix': False, 
+        'flash': False, 'slow': False, 'mirror': False, 'up_down': False, 'party': False, 
+        'rainbow': False, 'wide': False, 'laser': False, 'ghost': False, 'nitro': False, 
+        'mini': False, 'giant': False, 'trail': False, 'blur': False, 'pixel': False, 
+        'wireframe': False, 'disco': False, 'frozen': False, 'burn': False, 'shield': False, 
+        'magnet': False, 'double_pts': False, 'low_grav': False, 'high_grav': False, 
+        'reverse': False, 'moonwalk': False, 'drunk': False, 'speed': False, 'teleport': False, 
+        'inv': False, 'shadow': False, 'neon': False, 'glitch': False, 'static': False, 
+        'sepia': False, 'bw': False, 'heavy': False, 'light': False, 'vampire': False, 
+        'rich': False, 'inf_jump': False, 'auto_fire': False, 'stealth': False, 
+        'zoom': False, 'slomo': False, 'hardcore': False, 'espaco': False
+    }
+
+st = resetar()
+clock = pygame.time.Clock()
+
+while True:
+    st['hue'] = (st['hue'] + (20 if st['disco'] else 5)) % 360
+    c_chr = pygame.Color(0); c_chr.hsva = (st['hue'], 100, 100, 100)
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: pygame.quit(); sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F11:
+                st['fs'] = not st['fs']
+                tela = pygame.display.set_mode((info.current_w, info.current_h), pygame.FULLSCREEN if st['fs'] else 0)
+            if event.key == pygame.K_ESCAPE: st['pausa'] = not st['pausa']
+            if not st['pausa'] and not st['go']:
+                if event.key == pygame.K_SPACE and (not st['jump'] or st['inf_jump']):
+                    st['v_y'] = 15 if st['g_flip'] else -18; st['jump'] = True
+                if event.key == pygame.K_f: 
+                    st['f_balls'].append(pygame.Rect(st['d_x']+40, st['d_y']+10, 30, 20))
+            if event.key == pygame.K_r and st['go']: st = resetar()
+
+    if not st['go'] and not st['pausa']:
+        vel = 12 * (3.5 if st['flash'] else 2.2 if st['nitro'] else 0.4 if st['slow'] else 1)
+        st['ox'] -= vel
+        
+        # MOVIMENTO DO CHÃO (CORRIGIDO)
+        st['cx'] -= vel
+        if st['cx'] <= -200: st['cx'] = 0 
+        
+        if st['ox'] < -100: st['ox'] = 1100; st['pts'] += (5 if st['double_pts'] else 1)
+        
+        # Gravidade
+        g = 1.2 * (0.3 if st['low_grav'] else 2.8 if st['high_grav'] else 1)
+        if st['fly']:
+            k = pygame.key.get_pressed()
+            st['d_y'] += (k[pygame.K_DOWN] - k[pygame.K_UP]) * 10
+        else:
+            st['v_y'] += (-g if st['g_flip'] else g)
+            st['d_y'] += st['v_y']
+            if st['d_y'] > 445 and not st['g_flip']: st['d_y'] = 445; st['jump'] = False
+            if st['d_y'] < 50 and st['g_flip']: st['d_y'] = 50; st['jump'] = False
+
+        # Tiros e Colisão
+        o_rect = pygame.Rect(st['ox']+5, 445, 30, 55)
+        for fb in st['f_balls'][:]:
+            fb.x += 20
+            if fb.colliderect(o_rect):
+                st['ox'] = 1100; st['pts'] += 10
+                st['f_balls'].remove(fb)
+            elif fb.x > 1100: st['f_balls'].remove(fb)
+
+        p_rect = pygame.Rect(st['d_x']+10, st['d_y']+5, 30, 40)
+        if p_rect.colliderect(o_rect) and not (st['god'] or st['ghost']): st['go'] = True
+
+    # --- RENDER ---
+    s = pygame.Surface((1000, 600))
+    s.fill((20, 20, 20) if not st['party'] else c_chr)
+    
+    # DESENHO DO CHÃO (CORRIGIDO - 7 CÓPIAS PARA COBRIR TUDO)
+    for i in range(7):
+        s.blit(chao_img, (st['cx'] + (i * 200), 500))
+
+    # Desenho do Mario
+    img_p = [m1, m2, m3][(pygame.time.get_ticks()//100)%3].copy()
+    if st['rainbow']: img_p.fill(c_chr, special_flags=pygame.BLEND_RGB_MULT)
+    s.blit(img_p, (st['d_x'], st['d_y']))
+    
+    # Desenho do Obstáculo
+    s.blit(ob, (st['ox'], 445))
+
+    # DESENHO DOS TIROS (COM TEXTURA)
+    for fb in st['f_balls']:
+        # Se tiro_img for um quadrado cinza (erro), desenha um círculo de fogo
+        if tiro_img.get_at((0,0)) == (200, 200, 200, 255): 
+            pygame.draw.ellipse(s, (255, 100, 0), fb)
+            pygame.draw.ellipse(s, (255, 255, 0), fb.inflate(-10, -5))
+        else:
+            s.blit(tiro_img, fb)
+
+    # Shake e Mirror
+    shake = [random.randint(-5,5), random.randint(-5,5)] if st['quake'] else [0,0]
+    final_s = pygame.transform.flip(s, True, False) if st['mirror'] else s
+    tela.blit(pygame.transform.scale(final_s, tela.get_size()), shake)
+
+    # Menu ESC
+    if st['pausa']:
+        overlay = pygame.Surface(tela.get_size(), pygame.SRCALPHA); overlay.fill((0,0,0,200)); tela.blit(overlay, (0,0))
+        cx = tela.get_width()//2
+        if criar_botao(tela, "MODS", cx-210, 100, 200, 40, ativo=(st['aba']=='FUNÇÕES')): st['aba']='FUNÇÕES'
+        if criar_botao(tela, "SAIR", cx+10, 100, 200, 40): pygame.quit(); sys.exit()
+        
+        if st['aba'] == 'FUNÇÕES':
+            l_f = [k for k,v in st.items() if isinstance(v, bool) and k not in ['pausa','go','jump','fs']]
+            for i, n in enumerate(l_f):
+                col, lin = i // 13, i % 13
+                if criar_botao(tela, n.upper(), 50+(col*185), 160+(lin*30), 170, 25, ativo=st[n]): st[n] = not st[n]
+
+    draw_text(tela, f"SCORE: {int(st['pts'])} | FPS: {int(clock.get_fps())}", (20, 20), (255, 255, 0))
+    pygame.display.update()
+    clock.tick(60)
